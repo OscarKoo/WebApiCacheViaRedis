@@ -1,6 +1,6 @@
 ﻿namespace Dao.WebApiCacheViaRedis;
 
-public class RefOut<T>
+internal class RefOut<T>
 {
     public RefOut()
     {

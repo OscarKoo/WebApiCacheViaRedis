@@ -34,7 +34,7 @@ internal class RedisCacheFilter(IRedisLogger logger) : IAsyncActionFilter
 
                     try
                     {
-                        var manager = RedisManager.GetOrCreate(GlobalVars.RedisConnectionString);
+                        var manager = RedisManager.GetOrCreate(GlobalVars.RedisConnectionString, logger);
 
                         var sw = new Stopwatch();
                         sw.Start();
@@ -43,7 +43,7 @@ internal class RedisCacheFilter(IRedisLogger logger) : IAsyncActionFilter
                         {
                             var resultContext = await next().ConfigureAwait(false);
                             return getSetResult.Get(resultContext.Result);
-                        }, config.RedisConfiguration, logger).ConfigureAwait(false);
+                        }, config.RedisConfiguration).ConfigureAwait(false);
 
                         sw.Stop();
                         logger?.Debug(string.Join(Environment.NewLine,

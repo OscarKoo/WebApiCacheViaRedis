@@ -88,10 +88,10 @@ internal class RedisKeyRelationships
         }
     }
 
-    public static void ResetEntityTypes(IEnumerable<Type> entityTypes)
+    public static bool ResetEntityTypes(IEnumerable<Type> entityTypes)
     {
         if (entityTypes == null)
-            return;
+            return false;
 
         var onResetRequest = OnResetRequest;
         var removed = new HashSet<string>(StringComparer.Ordinal);
@@ -101,6 +101,9 @@ internal class RedisKeyRelationships
             var requests = GetOrAdd(entityRequests, entityType);
             lock (requests)
             {
+                if (requests.Count <= 0)
+                    continue;
+
                 foreach (var request in requests.Where(removed.Add))
                 {
                     onResetRequest?.Invoke(request);
@@ -109,23 +112,29 @@ internal class RedisKeyRelationships
                 requests.Clear();
             }
         }
+
+        return removed.Count > 0;
     }
 
-    public static void ResetSubRoute(string subRoute)
+    public static bool ResetSubRoute(string subRoute)
     {
         if (string.IsNullOrWhiteSpace(subRoute))
-            return;
+            return false;
 
         var onResetRequest = OnResetRequest;
         var requests = GetOrAdd(subRouteRequests, subRoute);
         lock (requests)
         {
+            if (requests.Count <= 0)
+                return false;
+
             foreach (var request in requests)
             {
                 onResetRequest?.Invoke(request);
             }
 
             requests.Clear();
+            return true;
         }
     }
 }
